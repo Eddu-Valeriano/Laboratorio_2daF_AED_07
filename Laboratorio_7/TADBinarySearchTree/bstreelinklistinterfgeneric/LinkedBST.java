@@ -103,4 +103,15 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
     public boolean isEmpty() {
         return root == null;
     }
+    public void inOrderTraversal() {
+        inOrderTraversal(root);
+    }
+
+    private void inOrderTraversal(Node node) {
+        if (node != null) {
+            inOrderTraversal(node.left); // Visita el subárbol izquierdo
+            System.out.println(node.data); //  Visita el nodo actual (raíz)
+            inOrderTraversal(node.right); // Visita el subárbol derecho
+        }
+    }
 }
