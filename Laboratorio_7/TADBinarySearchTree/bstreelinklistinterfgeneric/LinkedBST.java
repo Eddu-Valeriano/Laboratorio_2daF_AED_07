@@ -125,4 +125,15 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
             preOrderTraversal(node.right); // Subárbol derecho
         }
     }
+    public void postOrderTraversal() {
+        postOrderTraversal(root);
+    }
+
+    private void postOrderTraversal(Node node) {
+        if (node != null) {
+            postOrderTraversal(node.left); // Subárbol izquierdo
+            postOrderTraversal(node.right); // Subárbol derecho
+            System.out.println(node.data); //  Visitar la raíz
+        }
+    }
 }
