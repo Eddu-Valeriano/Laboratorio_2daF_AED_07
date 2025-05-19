@@ -4,6 +4,7 @@ import bstreeInterface.BinarySearchTree;
 import Excepciones.ItemDuplicated;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import Excepciones.ExceptionIsEmpty;
 import Excepciones.ItemNotFound;
@@ -158,7 +159,7 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
     public void destroyNodes() throws ExceptionIsEmpty {
         if (root == null)
             throw new ExceptionIsEmpty("El árbol está vacío");
-        root = null; //El recolector de basura de Java se encargará del resto
+        root = null; // El recolector de basura de Java se encargará del resto
     }
 
     // b. MtodocountAllNodes (nodos no hoja)
@@ -230,5 +231,62 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
 
         return currentLevel.size(); // número de nodos en ese nivel
     }
+
+    public int areaBST() {
+        if (root == null)
+            return 0; // Si el arbol esta vacio, el area es 0
+
+        List<Node> cola = new ArrayList<>(); // Lista para recorrer los nodos como si fuera una cola
+        cola.add(root); // Comenzamos desde la raiz
+
+        int hojas = 0; // Contador de nodos hoja
+        int altura = -1; // Altura del arbol, comienza en -1 porque se incrementa antes de revisar
+
+        while (!cola.isEmpty()) {
+            int nivelSize = cola.size(); // Cantidad de nodos en el nivel actual
+            altura++; // Aumentamos la altura porque estamos por recorrer un nuevo nivel
+            for (int i = 0; i < nivelSize; i++) {
+                Node actual = cola.remove(0); // Sacamos el primer nodo de la lista
+
+                // Si el nodo no tiene hijos, es una hoja
+                if (actual.left == null && actual.right == null) {
+                    hojas++;
+                }
+                // Si tiene hijos, los agregamos a la lista para revisarlos en el siguiente
+                // nivel
+                if (actual.left != null)
+                    cola.add(actual.left);
+                if (actual.right != null)
+                    cola.add(actual.right);
+            }
+        }
+        return hojas * altura; // El area es la cantidad de hojas por la altura del arbol
+    }
+
+    // Metodo toString que llama a un recorrido en orden y devuelve los elementos
+    // como cadena
+    @Override
+    public String toString() {
+        List<E> elementos = new ArrayList<>();
+        inOrdenList(root, elementos); // Recorre en orden y guarda en la lista
+        return elementos.toString(); // Devuelve los elementos como texto
+    }
+
+    private void inOrdenList(Node node, List<E> lista) {
+        if (node != null) {
+            inOrdenList(node.left, lista); // Visita el hijo izquierdo
+            lista.add(node.data); // Visita el nodo actual
+            inOrdenList(node.right, lista); // Visita el hijo derecho
+        }
+    }
+
+    // Metodo drawBST que usa toString para "mostrar" el arbol
+    public void drawBST() {
+        System.out.println("Arbol BST (recorrido in-order): " + toString());
+    }
+    
+    public static boolean sameArea(LinkedBST<?> bst1, LinkedBST<?> bst2) {
+    return bst1.areaBST() == bst2.areaBST();
+}
 
 }
