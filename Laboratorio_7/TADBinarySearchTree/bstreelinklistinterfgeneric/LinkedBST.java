@@ -64,8 +64,10 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
             return null;
 
         int cmp = data.compareTo(node.data);
-        if (cmp < 0)node.left = delete(node.left, data);
-        else if (cmp > 0)node.right = delete(node.right, data);
+        if (cmp < 0)
+            node.left = delete(node.left, data);
+        else if (cmp > 0)
+            node.right = delete(node.right, data);
         else {
             if (node.left == null)
                 return node.right;
@@ -79,11 +81,20 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
 
         return node;
     }
+
     private Node findMin(Node node) {
         while (node.left != null)
             node = node.left;
         return node;
     }
+
+    private Node findMax(Node node) {
+        while (node.right != null) {
+            node = node.right;
+        }
+        return node;
+    }
+
     public E search(E data) throws ItemNotFound {
         Node result = search(root, data);
         if (result == null)
@@ -95,14 +106,18 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
         if (node == null)
             return null;
         int cmp = data.compareTo(node.data);
-        if (cmp < 0)return search(node.left, data);
-        else if (cmp > 0)return search(node.right, data);
+        if (cmp < 0)
+            return search(node.left, data);
+        else if (cmp > 0)
+            return search(node.right, data);
         else
             return node;
     }
+
     public boolean isEmpty() {
         return root == null;
     }
+
     public void inOrderTraversal() {
         inOrderTraversal(root);
     }
@@ -110,10 +125,11 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
     private void inOrderTraversal(Node node) {
         if (node != null) {
             inOrderTraversal(node.left); // Visita el subárbol izquierdo
-            System.out.println(node.data); //  Visita el nodo actual (raíz)
+            System.out.println(node.data); // Visita el nodo actual (raíz)
             inOrderTraversal(node.right); // Visita el subárbol derecho
         }
     }
+
     public void preOrderTraversal() {
         preOrderTraversal(root);
     }
@@ -125,6 +141,7 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
             preOrderTraversal(node.right); // Subárbol derecho
         }
     }
+
     public void postOrderTraversal() {
         postOrderTraversal(root);
     }
@@ -133,7 +150,85 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
         if (node != null) {
             postOrderTraversal(node.left); // Subárbol izquierdo
             postOrderTraversal(node.right); // Subárbol derecho
-            System.out.println(node.data); //  Visitar la raíz
+            System.out.println(node.data); // Visitar la raíz
         }
     }
+
+    // a.Metodo destroyNodes
+    public void destroyNodes() throws ExceptionIsEmpty {
+        if (root == null)
+            throw new ExceptionIsEmpty("El árbol está vacío");
+        root = null; //El recolector de basura de Java se encargará del resto
+    }
+
+    // b. MtodocountAllNodes (nodos no hoja)
+    public int countAllNodes() {
+        return countAllNodes(root);
+    }
+
+    private int countAllNodes(Node node) {
+        if (node == null || (node.left == null && node.right == null))
+            return 0;
+        return 1 + countAllNodes(node.left) + countAllNodes(node.right);
+    }
+
+    // c. Método countNodes(numero total de nodosincluyendo hojas)
+    public int countNodes() {
+        return countNodes(root);
+    }
+
+    private int countNodes(Node node) {
+        if (node == null)
+            return 0;
+        return 1 + countNodes(node.left) + countNodes(node.right);
+    }
+
+    // d. Método height(x)iterativo
+    public int height(E x) {
+        Node subRoot = search(root, x);
+        if (subRoot == null)
+            return -1;
+
+        ArrayList<Node> currentLevel = new ArrayList<>();
+        currentLevel.add(subRoot);
+        int height = -1;
+
+        while (!currentLevel.isEmpty()) {
+            height++;
+            ArrayList<Node> nextLevel = new ArrayList<>();
+            for (Node node : currentLevel) {
+                if (node.left != null)
+                    nextLevel.add(node.left);
+                if (node.right != null)
+                    nextLevel.add(node.right);
+            }
+            currentLevel = nextLevel;
+        }
+
+        return height;
+    }
+
+    // e. Método amplitude(nivel)
+    public int amplitude(int nivel) {
+        if (root == null || nivel < 0)
+            return 0;
+        ArrayList<Node> currentLevel = new ArrayList<>();
+        currentLevel.add(root);
+        int currentDepth = 0;
+
+        while (currentDepth < nivel && !currentLevel.isEmpty()) {
+            ArrayList<Node> nextLevel = new ArrayList<>();
+            for (Node node : currentLevel) {
+                if (node.left != null)
+                    nextLevel.add(node.left);
+                if (node.right != null)
+                    nextLevel.add(node.right);
+            }
+            currentLevel = nextLevel;
+            currentDepth++;
+        }
+
+        return currentLevel.size(); // número de nodos en ese nivel
+    }
+
 }
