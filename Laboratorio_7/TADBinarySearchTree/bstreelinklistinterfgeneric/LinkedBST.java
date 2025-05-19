@@ -284,9 +284,34 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
     public void drawBST() {
         System.out.println("Arbol BST (recorrido in-order): " + toString());
     }
-    
+
     public static boolean sameArea(LinkedBST<?> bst1, LinkedBST<?> bst2) {
     return bst1.areaBST() == bst2.areaBST();
+
 }
+    public void parenthesize(){
+        if(isEmpty()){
+            System.out.println("El arbol esta vacio");//si no hay nodos se muestra un mensaje y se detiene
+            return;
+        }
+        parenthesize(root,0);//se inicia el recorrido desde la raiz con nivel 0
+    }
+
+    private void parenthesize(Node node,int level){
+        if(node==null)return;//si el nodo no existe ya no se continua
+
+        for(int i=0;i<level;i++)System.out.print("  ");//imprime espacios para la sangria segun el nivel
+        System.out.print(node.data);//muestra el valor del nodo actual
+
+        if(node.left!=null||node.right!=null){//si el nodo tiene hijos se abre parentesis y se baja de nivel
+            System.out.println(" (");
+            parenthesize(node.left,level+1);//va por el hijo izquierdo aumentando sangria
+            parenthesize(node.right,level+1);//va por el hijo derecho con la misma logica
+            for(int i=0;i<level;i++)System.out.print("  ");//antes de cerrar parentesis se vuelve al nivel del padre
+            System.out.println(")");
+        }else{
+            System.out.println();//si no hay hijos se cierra la linea
+        }
+    }
 
 }
