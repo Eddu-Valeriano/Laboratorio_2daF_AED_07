@@ -4,6 +4,9 @@ import Excepciones.ExceptionIsEmpty;
 import Excepciones.ItemDuplicated;
 import Excepciones.ItemNotFound;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import BSTree.BSTTree;
 
 public class AVLTree<E extends Comparable<E>> extends BSTTree<E> {
@@ -14,6 +17,7 @@ public class AVLTree<E extends Comparable<E>> extends BSTTree<E> {
 
         public NodeAVL(E data) {
             super(data);
+            this.data = data;
         }
 
         public String toString() {
@@ -57,10 +61,25 @@ public class AVLTree<E extends Comparable<E>> extends BSTTree<E> {
                             break;
                     }
                 }
-            } else {
-                // Aquí va el código para insertar a la izquierda
-                // if (resC > 0) { ... }
+            } else { // resC > 0
+            fat.left = insert(x, (NodeAVL) node.left);
+            if (this.height) {
+                switch (fat.bf) {
+                    case 1:
+                        fat.bf = 0;
+                        this.height = false;
+                        break;
+                    case 0:
+                        fat.bf = -1;
+                        this.height = true;
+                        break;
+                    case -1:
+                        fat = balanceToRight(fat);
+                        this.height = false;
+                        break;
+                }
             }
+        }
         }
 
         return fat;
@@ -97,19 +116,73 @@ public class AVLTree<E extends Comparable<E>> extends BSTTree<E> {
         }
         return node;
     }
-    private NodeAVL rotateSL(NodeAVL node){
-        NodeAVL p=(NodeAVL)node.right;
-        node.right=p.left;
-        p.left=node;
-        node=p;
-        return node;
-    }
-    private NodeAVL rotateSR(NodeAVL node){
-        NodeAVL p=(NodeAVL)node.left;
-        node.left=p.right;
-        p.right=node;
-        node=p;
+
+    private NodeAVL balanceToRight(NodeAVL node) {
+        NodeAVL hijo = (NodeAVL) node.left;
+        switch (hijo.bf) {
+            case -1:
+                node.bf = 0;
+                hijo.bf = 0;
+                node = rotateSR(node);
+                break;
+            case 1:
+                NodeAVL nieto = (NodeAVL) hijo.right;
+                switch (nieto.bf) {
+                    case 1:
+                        node.bf = 0;
+                        hijo.bf = -1;
+                        break;
+                    case 0:
+                        node.bf = 0;
+                        hijo.bf = 0;
+                        break;
+                    case -1:
+                        node.bf = 1;
+                        hijo.bf = 0;
+                        break;
+                }
+                nieto.bf = 0;
+                node.left = rotateSL(hijo);
+                node = rotateSR(node);
+                break;
+        }
         return node;
     }
 
+    private NodeAVL rotateSL(NodeAVL node) {
+        NodeAVL p = (NodeAVL) node.right;
+        node.right = p.left;
+        p.left = node;
+        node = p;
+        return node;
+    }
+
+    private NodeAVL rotateSR(NodeAVL node) {
+        NodeAVL p = (NodeAVL) node.left;
+        node.left = p.right;
+        p.right = node;
+        node = p;
+        return node;
+    }
+    public void mostrarPorNiveles() {
+    if (root == null) {
+        System.out.println("Árbol vacío.");
+        return;
+    }
+
+    Queue<Nodo> cola = new LinkedList<>();
+    cola.add(root);
+
+    while (!cola.isEmpty()) {
+        Nodo actual = cola.poll();
+        System.out.print(actual + " ");
+
+        if (actual instanceof NodeAVL) {
+            NodeAVL nodoAVL = (NodeAVL) actual;
+            if (nodoAVL.left != null) cola.add(nodoAVL.left);
+            if (nodoAVL.right != null) cola.add(nodoAVL.right);
+        }
+    }
+    System.out.println();
+}
 }
