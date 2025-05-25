@@ -6,11 +6,12 @@ import Excepciones.ItemNotFound;
 
 import BSTree.BSTTree;
 
-public class AVLTree<E extends Comparable<E>> extends BSTTree <E>{
+public class AVLTree<E extends Comparable<E>> extends BSTTree<E> {
     class NodeAVL extends Nodo {
         protected int bf;
         E data;
-        public Nodo right,left;
+        public Nodo right, left;
+
         public NodeAVL(E data) {
             super(data);
         }
@@ -19,7 +20,7 @@ public class AVLTree<E extends Comparable<E>> extends BSTTree <E>{
             return data.toString();
         }
     }
-    
+
     private boolean height;
 
     public void insert(E x) throws ItemDuplicated {
@@ -63,6 +64,52 @@ public class AVLTree<E extends Comparable<E>> extends BSTTree <E>{
         }
 
         return fat;
+    }
+
+    private NodeAVL balanceToLeft(NodeAVL node) {
+        NodeAVL hijo = (NodeAVL) node.right;
+        switch (hijo.bf) {
+            case 1:
+                node.bf = 0;
+                hijo.bf = 0;
+                node = rotateSL(node);
+                break;
+            case -1:
+                NodeAVL nieto = (NodeAVL) hijo.left;
+                switch (nieto.bf) {
+                    case -1:
+                        node.bf = 0;
+                        hijo.bf = 1;
+                        break;
+                    case 0:
+                        node.bf = 0;
+                        hijo.bf = 0;
+                        break;
+                    case 1:
+                        node.bf = 1;
+                        hijo.bf = 0;
+                        break;
+                }
+                nieto.bf = 0;
+                node.right = rotateSR(hijo);
+                node = rotateSL(node);
+                break;
+        }
+        return node;
+    }
+    private NodeAVL rotateSL(NodeAVL node){
+        NodeAVL p=(NodeAVL)node.right;
+        node.right=p.left;
+        p.left=node;
+        node=p;
+        return node;
+    }
+    private NodeAVL rotateSR(NodeAVL node){
+        NodeAVL p=(NodeAVL)node.left;
+        node.left=p.right;
+        p.right=node;
+        node=p;
+        return node;
     }
 
 }
