@@ -325,8 +325,8 @@ public class AVLTree<E extends Comparable<E>> extends LinkedBST<E> {
 
     public boolean searchA(E x) throws ItemNotFound {
         comparaciones = 0;
-        boolean comp=searchAVL((NodeAVL) this.root, x);
-        if(comp==false){
+        boolean comp = searchAVL((NodeAVL) this.root, x);
+        if (comp == false) {
             throw new ItemNotFound("El elemento no se encuentra");
         }
         return comp;
@@ -344,6 +344,18 @@ public class AVLTree<E extends Comparable<E>> extends LinkedBST<E> {
             return searchAVL((NodeAVL) node.left, x);
         else
             return searchAVL((NodeAVL) node.right, x);
+    }
+
+    public void preOrdenAVL() {
+        preOrden((NodeAVL) root);// Se castea para poder convertir al NodoAvl y hacer uso del toString
+    }
+
+    public void preOrden(NodeAVL nodo) {
+        if (nodo == null)
+            return; // Verificación necesaria
+        System.out.println(nodo.toString());
+        preOrden((NodeAVL) nodo.left);
+        preOrden((NodeAVL) nodo.right);
     }
 
 }
