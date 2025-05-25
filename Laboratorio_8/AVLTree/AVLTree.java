@@ -62,24 +62,24 @@ public class AVLTree<E extends Comparable<E>> extends BSTTree<E> {
                     }
                 }
             } else { // resC > 0
-            fat.left = insert(x, (NodeAVL) node.left);
-            if (this.height) {
-                switch (fat.bf) {
-                    case 1:
-                        fat.bf = 0;
-                        this.height = false;
-                        break;
-                    case 0:
-                        fat.bf = -1;
-                        this.height = true;
-                        break;
-                    case -1:
-                        fat = balanceToRight(fat);
-                        this.height = false;
-                        break;
+                fat.left = insert(x, (NodeAVL) node.left);
+                if (this.height) {
+                    switch (fat.bf) {
+                        case 1:
+                            fat.bf = 0;
+                            this.height = false;
+                            break;
+                        case 0:
+                            fat.bf = -1;
+                            this.height = true;
+                            break;
+                        case -1:
+                            fat = balanceToRight(fat);
+                            this.height = false;
+                            break;
+                    }
                 }
             }
-        }
         }
 
         return fat;
@@ -164,25 +164,66 @@ public class AVLTree<E extends Comparable<E>> extends BSTTree<E> {
         node = p;
         return node;
     }
+
     public void mostrarPorNiveles() {
-    if (root == null) {
-        System.out.println("Árbol vacío.");
-        return;
-    }
-
-    Queue<Nodo> cola = new LinkedList<>();
-    cola.add(root);
-
-    while (!cola.isEmpty()) {
-        Nodo actual = cola.poll();
-        System.out.print(actual + " ");
-
-        if (actual instanceof NodeAVL) {
-            NodeAVL nodoAVL = (NodeAVL) actual;
-            if (nodoAVL.left != null) cola.add(nodoAVL.left);
-            if (nodoAVL.right != null) cola.add(nodoAVL.right);
+        if (root == null) {
+            System.out.println("Árbol vacío.");
+            return;
         }
+
+        Queue<Nodo> cola = new LinkedList<>();
+        cola.add(root);
+
+        while (!cola.isEmpty()) {
+            Nodo actual = cola.poll();
+            System.out.print(actual + " ");
+
+            if (actual instanceof NodeAVL) {
+                NodeAVL nodoAVL = (NodeAVL) actual;
+                if (nodoAVL.left != null)
+                    cola.add(nodoAVL.left);
+                if (nodoAVL.right != null)
+                    cola.add(nodoAVL.right);
+            }
+        }
+        System.out.println();
     }
-    System.out.println();
-}
+
+    public int altura() {
+        return altura((NodeAVL) this.root);
+    }
+
+    private int altura(NodeAVL node) {
+        if (node == null)
+            return -1;
+        int altIzq = altura((NodeAVL) node.left);
+        int altDer = altura((NodeAVL) node.right);
+        return 1 + Math.max(altIzq, altDer);
+    }
+
+    private int comparaciones;
+
+    public int getComparaciones() {
+        return comparaciones;
+    }
+
+    public boolean search(E x) {
+        comparaciones = 0;
+        return search((NodeAVL) this.root, x);
+    }
+
+    private boolean search(NodeAVL node, E x) {
+        if (node == null)
+            return false;
+
+        comparaciones++; // se cuenta cada comparación
+        int cmp = x.compareTo(node.data);
+        if (cmp == 0)
+            return true;
+        if (cmp < 0)
+            return search((NodeAVL) node.left, x);
+        else
+            return search((NodeAVL) node.right, x);
+    }
+
 }
