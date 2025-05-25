@@ -3,17 +3,16 @@ package AVLTree;
 import Excepciones.ExceptionIsEmpty;
 import Excepciones.ItemDuplicated;
 import Excepciones.ItemNotFound;
-
 import java.util.LinkedList;
 import java.util.Queue;
 
-import BSTree.BSTTree;
+import BSTree.LinkedBST;
 
-public class AVLTree<E extends Comparable<E>> extends BSTTree<E> {
-    class NodeAVL extends Nodo {
+public class AVLTree<E extends Comparable<E>> extends LinkedBST<E> {
+    class NodeAVL extends Node {
         protected int bf;
         E data;
-        public Nodo right, left;
+        public Node right, left;
 
         public NodeAVL(E data) {
             super(data);
@@ -32,7 +31,7 @@ public class AVLTree<E extends Comparable<E>> extends BSTTree<E> {
         this.root = insert(x, (NodeAVL) this.root);
     }
 
-    protected Nodo insert(E x, NodeAVL node) throws ItemDuplicated {
+    protected Node insert(E x, NodeAVL node) throws ItemDuplicated {
         NodeAVL fat = node;
 
         if (node == null) {
@@ -171,22 +170,30 @@ public class AVLTree<E extends Comparable<E>> extends BSTTree<E> {
             return;
         }
 
-        Queue<Nodo> cola = new LinkedList<>();
+        Queue<Node> cola = new LinkedList<>();
         cola.add(root);
+        int nivel = 0;
 
         while (!cola.isEmpty()) {
-            Nodo actual = cola.poll();
-            System.out.print(actual + " ");
+            int cantidadEnNivel = cola.size();
+            System.out.print("Nivel " + nivel + ": ");
 
-            if (actual instanceof NodeAVL) {
-                NodeAVL nodoAVL = (NodeAVL) actual;
-                if (nodoAVL.left != null)
-                    cola.add(nodoAVL.left);
-                if (nodoAVL.right != null)
-                    cola.add(nodoAVL.right);
+            for (int i = 0; i < cantidadEnNivel; i++) {
+                Node actual = cola.poll();
+                System.out.print(actual + " ");
+
+                if (actual instanceof NodeAVL) {
+                    NodeAVL nodoAVL = (NodeAVL) actual;
+                    if (nodoAVL.left != null)
+                        cola.add(nodoAVL.left);
+                    if (nodoAVL.right != null)
+                        cola.add(nodoAVL.right);
+                }
             }
+
+            System.out.println();
+            nivel++;
         }
-        System.out.println();
     }
 
     public int altura() {
@@ -201,29 +208,113 @@ public class AVLTree<E extends Comparable<E>> extends BSTTree<E> {
         return 1 + Math.max(altIzq, altDer);
     }
 
-    private int comparaciones;
-
-    public int getComparaciones() {
-        return comparaciones;
+    public void remove(E x) throws ItemNotFound, ExceptionIsEmpty {
+        if (root == null)
+            throw new ExceptionIsEmpty("Árbol vacío");
+        this.height = false;
+        this.root = remove((NodeAVL) this.root, x);
     }
 
-    public boolean search(E x) {
-        comparaciones = 0;
-        return search((NodeAVL) this.root, x);
-    }
-
-    private boolean search(NodeAVL node, E x) {
+    // Metodo para poder remover un elemento del AVL
+    private NodeAVL remove(NodeAVL node, E x) throws ItemNotFound {
         if (node == null)
-            return false;
+            throw new ItemNotFound("Elemento no encontrado");
 
-        comparaciones++; // se cuenta cada comparación
-        int cmp = x.compareTo(node.data);
-        if (cmp == 0)
-            return true;
-        if (cmp < 0)
-            return search((NodeAVL) node.left, x);
-        else
-            return search((NodeAVL) node.right, x);
+        NodeAVL fat = node;
+        int resC = x.compareTo(node.data);
+
+        if (resC < 0) {
+            fat.left = remove((NodeAVL) node.left, x);
+            if (this.height)
+                fat = balanceToLeftDeletion(fat);
+        } else if (resC > 0) {
+            fat.right = remove((NodeAVL) node.right, x);
+            if (this.height)
+                fat = balanceToRightDeletion(fat);
+        } else {
+            if (node.left == null || node.right == null) {
+                fat = (NodeAVL) (node.left != null ? node.left : node.right);
+                this.height = true;
+            } else {
+                NodeAVL min = findMin((NodeAVL) node.right);
+                node.data = min.data;
+                node.right = remove((NodeAVL) node.right, min.data);
+                if (this.height)
+                    fat = balanceToRightDeletion(node);
+            }
+        }
+
+        return fat;
+    }
+
+    private NodeAVL findMin(NodeAVL node) {
+        while (node.left != null)
+            node = (NodeAVL) node.left;
+        return node;
+    }
+
+    private NodeAVL balanceToLeftDeletion(NodeAVL node) {
+        switch (node.bf) {
+            case 1:
+                node.bf = 0;
+                break;
+            case 0:
+                node.bf = -1;
+                this.height = false;
+                break;
+            case -1:
+                NodeAVL right = (NodeAVL) node.right;
+                switch (right.bf) {
+                    case 0:
+                        node = rotateSL(node);
+                        right.bf = 1;
+                        node.bf = -1;
+                        this.height = false;
+                        break;
+                    case 1:
+                        node = rotateSL(node);
+                        node.bf = 0;
+                        break;
+                    case -1:
+                        node.right = rotateSR(right);
+                        node = rotateSL(node);
+                        break;
+                }
+                break;
+        }
+        return node;
+    }
+
+    private NodeAVL balanceToRightDeletion(NodeAVL node) {
+        switch (node.bf) {
+            case -1:
+                node.bf = 0;
+                break;
+            case 0:
+                node.bf = 1;
+                this.height = false;
+                break;
+            case 1:
+                NodeAVL left = (NodeAVL) node.left;
+                switch (left.bf) {
+                    case 0:
+                        node = rotateSR(node);
+                        left.bf = -1;
+                        node.bf = 1;
+                        this.height = false;
+                        break;
+                    case -1:
+                        node = rotateSR(node);
+                        node.bf = 0;
+                        break;
+                    case 1:
+                        node.left = rotateSL(left);
+                        node = rotateSR(node);
+                        break;
+                }
+                break;
+        }
+        return node;
     }
 
 }
