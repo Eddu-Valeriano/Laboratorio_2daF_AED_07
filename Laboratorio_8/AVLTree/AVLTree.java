@@ -317,4 +317,33 @@ public class AVLTree<E extends Comparable<E>> extends LinkedBST<E> {
         return node;
     }
 
+    private int comparaciones;
+
+    public int getComparaciones() {
+        return comparaciones;
+    }
+
+    public boolean searchA(E x) throws ItemNotFound {
+        comparaciones = 0;
+        boolean comp=searchAVL((NodeAVL) this.root, x);
+        if(comp==false){
+            throw new ItemNotFound("El elemento no se encuentra");
+        }
+        return comp;
+    }
+
+    private boolean searchAVL(NodeAVL node, E x) throws ItemNotFound {
+        if (node == null)
+            return false;
+
+        comparaciones++; // se cuenta cada comparación
+        int cmp = x.compareTo(node.data);
+        if (cmp == 0)
+            return true;
+        if (cmp < 0)
+            return searchAVL((NodeAVL) node.left, x);
+        else
+            return searchAVL((NodeAVL) node.right, x);
+    }
+
 }
