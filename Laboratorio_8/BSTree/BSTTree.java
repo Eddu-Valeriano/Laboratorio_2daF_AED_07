@@ -1,12 +1,12 @@
 package BSTree;
 
-
-public class BSTTree {
+//Clase ejemplo, no pude importar debido al IDE VisualStudiCode
+public class BSTTree<E> {
     protected class Nodo {
-        int valor;
-        Nodo izquierdo, derecho;
+        protected E valor;
+        protected Nodo izquierdo, derecho;
 
-        Nodo(int valor) {
+        protected Nodo(E valor) {
             this.valor = valor;
         }
     }
