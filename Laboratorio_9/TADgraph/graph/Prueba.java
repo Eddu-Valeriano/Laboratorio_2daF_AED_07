@@ -14,6 +14,11 @@ public class Prueba {
         graph.insertEdge("A", "C");
         graph.insertEdge("B", "D");
         graph.insertEdge("C", "E");
+        
+        //Actividades
+        /* 
+        System.out.println("Actividades");
+        graph.bfs("A");
         System.out.println();
         String recorrido = graph.dfsI();
 
@@ -27,5 +32,14 @@ public class Prueba {
         System.out.println("Eliminacion de la arista entre B y D");
         graph.removeEdge("B","D");
         System.out.println("Recorrido DFS: "+ graph.dfsI());
+        */
+        //Ejercicios
+        System.out.println("Ejercicios");
+        System.out.println();
+        System.out.println("Recorrido BFS desde A:");
+        graph.bfs("A");
+
+        System.out.println("Camino de A a E:");
+        System.out.println(graph.bfsPath("A", "E"));
     }
 }

@@ -1,5 +1,11 @@
 package TADgraph.graph;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+
 import TADgraph.ListLinked.ListLinked;
 
 public class GraphLink<E> {
@@ -86,10 +92,9 @@ public class GraphLink<E> {
     public String dfsI() {
         String cadena = "";
         for (Vertex<E> ve : listVertex) {
-            cadena = dfs(cadena, ve); //Guarda el resultado
+            cadena = dfs(cadena, ve); // Guarda el resultado
             break;
         }
-
 
         // Reinicia visitados
         for (Vertex<E> ver : listVertex) {
@@ -110,6 +115,80 @@ public class GraphLink<E> {
         }
 
         return cadena;
+    }
+
+    public void resetVisit() {
+        for (Vertex<E> ve : listVertex) {
+            ve.visit = false;
+        }
+    }
+
+    public void bfs(E data) {
+        Vertex<E> start = getVertex(data);
+        if (start == null) {
+            System.out.println("Vértice no encontrado");
+            return;
+        }
+
+        Queue<Vertex<E>> cola = new LinkedList<>();
+        resetVisit(); // Asegura que todos estén no visitados
+        start.visit = true;
+        cola.add(start);
+
+        while (!cola.isEmpty()) {
+            Vertex<E> actual = cola.poll();
+            System.out.print(actual.getData() + " ");
+
+            for (Edge<E> arista : actual.listAdj) {
+                Vertex<E> vecino = arista.getRefDest();
+                if (!vecino.visit) {
+                    vecino.visit = true;
+                    cola.add(vecino);
+                }
+            }
+        }
+        System.out.println();
+    }
+
+    public ArrayList<E> bfsPath(E origen, E destino) {
+        Vertex<E> start = getVertex(origen);
+        Vertex<E> end = getVertex(destino);
+        if (start == null || end == null)
+            return null;
+
+        Queue<Vertex<E>> cola = new LinkedList<>();
+        Map<Vertex<E>, Vertex<E>> prev = new HashMap<>();
+        resetVisit();
+
+        start.visit = true;
+        cola.add(start);
+        prev.put(start, null);
+
+        while (!cola.isEmpty()) {
+            Vertex<E> actual = cola.poll();
+
+            if (actual.equals(end))
+                break;
+
+            for (Edge<E> arista : actual.listAdj) {
+                Vertex<E> vecino = arista.getRefDest();
+                if (!vecino.visit) {
+                    vecino.visit = true;
+                    cola.add(vecino);
+                    prev.put(vecino, actual);
+                }
+            }
+        }
+
+        // Reconstruir el camino
+        ArrayList<E> path = new ArrayList<>();
+        for (Vertex<E> at = end; at != null; at = prev.get(at)) {
+            path.add(0, at.getData());
+        }
+
+        if (path.isEmpty() || !path.get(0).equals(origen))
+            return null;
+        return path;
     }
 
 }
