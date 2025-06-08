@@ -325,4 +325,57 @@ public class GraphLink<E> {
         return finalPath;
     }
 
+    public int grado(E dato) {
+        Vertex<E> v = getVertex(dato);
+        if (v == null)
+            return -1;
+        return v.listAdj.size();
+    }
+
+    public boolean esCamino() {
+        int grado1 = 0;
+        for (Vertex<E> v : listVertex) {
+            int g = v.listAdj.size();
+            if (g == 1)
+                grado1++;
+            else if (g != 2)
+                return false;
+        }
+        return grado1 == 2;
+    }
+
+    public boolean esCiclo() {
+        for (Vertex<E> v : listVertex) {
+            if (v.listAdj.size() != 2)
+                return false;
+        }
+        return true;
+    }
+
+    public boolean esRueda() {
+        int centro = 0, perifericos = 0;
+        int n = listVertex.size();
+
+        for (Vertex<E> v : listVertex) {
+            int g = v.listAdj.size();
+            if (g == n - 1)
+                centro++;
+            else if (g == 3)
+                perifericos++;
+            else
+                return false;
+        }
+
+        return centro == 1 && perifericos == n - 1;
+    }
+
+    public boolean esCompleto() {
+        int n = listVertex.size();
+        for (Vertex<E> v : listVertex) {
+            if (v.listAdj.size() != n - 1)
+                return false;
+        }
+        return true;
+    }
+
 }
