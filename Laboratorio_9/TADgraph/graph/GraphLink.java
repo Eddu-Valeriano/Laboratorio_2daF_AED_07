@@ -1,10 +1,15 @@
 package TADgraph.graph;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Set;
+import java.util.Stack;
 
 import TADgraph.ListLinked.ListLinked;
 
@@ -189,6 +194,135 @@ public class GraphLink<E> {
         if (path.isEmpty() || !path.get(0).equals(origen))
             return null;
         return path;
+    }
+
+    public void insertEdgeWeight(E verOri, E verDes, int weight) {
+        Vertex<E> verO = getVertex(verOri);
+        Vertex<E> verD = getVertex(verDes);
+
+        if (verO == null || verD == null) {
+            System.out.println("Uno o ambos vértices no existen");
+            return;
+        }
+
+        // Verificar si ya existe la arista
+        if (verO.listAdj.contains(new Edge<>(verD))) {
+            System.out.println("La arista ya existe");
+            return;
+        }
+
+        verO.listAdj.add(new Edge<>(verD, weight));
+        verD.listAdj.add(new Edge<>(verO, weight)); // No dirigido
+    }
+
+    public ArrayList<E> shortPath(E origen, E destino) {
+        Vertex<E> start = getVertex(origen);
+        Vertex<E> end = getVertex(destino);
+        if (start == null || end == null)
+            return null;
+
+        Map<Vertex<E>, Vertex<E>> prev = new HashMap<>();
+        Queue<Vertex<E>> cola = new LinkedList<>();
+        Set<Vertex<E>> visitados = new HashSet<>();
+
+        cola.offer(start);
+        visitados.add(start);
+
+        while (!cola.isEmpty()) {
+            Vertex<E> actual = cola.poll();
+            if (actual.equals(end))
+                break;
+
+            for (Edge<E> edge : actual.listAdj) {
+                Vertex<E> vecino = edge.getRefDest();
+                if (!visitados.contains(vecino)) {
+                    visitados.add(vecino);
+                    prev.put(vecino, actual);
+                    cola.offer(vecino);
+                }
+            }
+        }
+
+        ArrayList<E> camino = new ArrayList<>();
+        if (!prev.containsKey(end))
+            return camino; // No hay camino
+
+        for (Vertex<E> at = end; at != null; at = prev.get(at)) {
+            camino.add(0, at.getData());
+        }
+
+        return camino;
+    }
+
+    public boolean isConexo() {
+        if (listVertex.isEmpty())
+            return true;
+
+        Set<Vertex<E>> visitados = new HashSet<>();
+        Queue<Vertex<E>> cola = new LinkedList<>();
+
+        Vertex<E> inicio = listVertex.getPosition(0);
+        cola.offer(inicio);
+        visitados.add(inicio);
+
+        while (!cola.isEmpty()) {
+            Vertex<E> actual = cola.poll();
+            for (Edge<E> edge : actual.listAdj) {
+                Vertex<E> vecino = edge.getRefDest();
+                if (!visitados.contains(vecino)) {
+                    visitados.add(vecino);
+                    cola.offer(vecino);
+                }
+            }
+        }
+
+        return visitados.size() == listVertex.size();
+    }
+
+    public Stack<E> Dijkstra(E origen, E destino) {
+        Vertex<E> start = getVertex(origen);
+        Vertex<E> end = getVertex(destino);
+        if (start == null || end == null)
+            return null;
+
+        Map<Vertex<E>, Integer> dist = new HashMap<>();
+        Map<Vertex<E>, Vertex<E>> prev = new HashMap<>();
+        PriorityQueue<Vertex<E>> queue = new PriorityQueue<>(Comparator.comparingInt(dist::get));
+
+        for (Vertex<E> v : listVertex) {
+            dist.put(v, v.equals(start) ? 0 : Integer.MAX_VALUE);
+            queue.add(v);
+        }
+
+        while (!queue.isEmpty()) {
+            Vertex<E> u = queue.poll();
+            for (Edge<E> edge : u.listAdj) {
+                Vertex<E> v = edge.getRefDest();
+                int alt = dist.get(u) + edge.getWeight();
+                if (alt < dist.get(v)) {
+                    dist.put(v, alt);
+                    prev.put(v, u);
+                    // Actualizar prioridad (reinsertar)
+                    queue.remove(v);
+                    queue.add(v);
+                }
+            }
+        }
+
+        Stack<E> path = new Stack<>();
+        if (!prev.containsKey(end))
+            return path; // No hay camino
+
+        for (Vertex<E> at = end; at != null; at = prev.get(at)) {
+            path.push(at.getData());
+        }
+
+        // Invertir el stack para que esté en orden inicio -> destino
+        Stack<E> finalPath = new Stack<>();
+        while (!path.isEmpty())
+            finalPath.push(path.pop());
+
+        return finalPath;
     }
 
 }

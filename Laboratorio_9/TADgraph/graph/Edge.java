@@ -10,6 +10,9 @@ public class Edge <E>{
         this.refDest=refDest;
         this.weight=weight;
     }
+    public int getWeight(){
+        return weight;
+    }
     public boolean equals(Object o){
         if(o instanceof Edge<?>){
             Edge<E> e=(Edge<E>)o;

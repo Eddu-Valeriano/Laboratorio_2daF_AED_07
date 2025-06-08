@@ -108,4 +108,15 @@ public class ListLinked<T> implements Iterable<T> {
     public boolean isEmpty(){
         return head==null;
     }
+    public T getPosition(int index) {
+    if (index < 0 || index >= count) {
+        throw new IndexOutOfBoundsException("Índice fuera de rango.");
+    }
+    Node<T> current = head;
+    for (int i = 0; i < index; i++) {
+        current = current.next;
+    }
+    return current.data;
+}
+
 }
